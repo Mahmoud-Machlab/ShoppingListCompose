@@ -18,6 +18,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.shoppinglistcompose.database.ShoppingMemo
+import com.example.shoppinglistcompose.shoppingMemoViewModel
 import com.example.shoppinglistcompose.ui.theme.ShoppingListComposeTheme
 import com.example.shoppinglistcompose.viewmodel.Values.product
 import com.example.shoppinglistcompose.viewmodel.Values.quantity
@@ -46,6 +48,7 @@ fun InputArea() {
 
         OutlinedButton(
             onClick = {
+                shoppingMemoViewModel.insertOrUpdate(ShoppingMemo(quantity.toInt(), product) )
                 quantity = ""
                 product = ""
             },
