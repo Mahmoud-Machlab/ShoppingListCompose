@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,11 +26,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import com.example.shoppinglistcompose.ui.InputArea
+import com.example.shoppinglistcompose.ui.ListView
 import com.example.shoppinglistcompose.ui.theme.ShoppingListComposeTheme
+import com.example.shoppinglistcompose.viewmodel.ShoppingMemoViewModel
+
+lateinit var shoppingMemoViewModel: ShoppingMemoViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        shoppingMemoViewModel = ShoppingMemoViewModel.invoke(application)
         setContent {
             ShoppingListComposeTheme {
                 // A surface container using the 'background' color from the theme
@@ -75,25 +83,16 @@ fun FullScreen(){
                 }
             )
         },
-//        content = { innerPadding ->
-//            LazyColumn(
-//                contentPadding = innerPadding,
-//                verticalArrangement = Arrangement.spacedBy(8.dp)
-//            ) {
-//                val list = (0..75).map { it.toString() }
-//                items(count = list.size) {
-//                    Text(
-//                        text = list[it],
-//                        style = MaterialTheme.typography.h2,
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(horizontal = 16.dp)
-//                    )
-//                }
-//            }
-//        }
+
     ){
         it.calculateBottomPadding()
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(all = 8.dp)
+        ) {
+            InputArea()
+            ListView()
+        }
     }
 }
 
