@@ -2,6 +2,7 @@ package com.example.shoppinglistcompose
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
@@ -83,7 +84,16 @@ fun FullScreen(){
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
+                    IconButton(onClick = {
+                        val memoList = shoppingMemoViewModel.getAllShoppingMemos()
+                        memoList?.value?.forEachIndexed() {index,memo ->
+                            Log.d("TAG", "FullScreen: ${memo.product} : ${memo.isSelected}")
+                            if(memo.isSelected){
+                                Log.d("TAG", "FullScreen2: ${memo.product} : ${memo.isSelected}")
+                                shoppingMemoViewModel.delete(memo)
+                            }
+                        }
+                    }) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
                             contentDescription = "Localized description"

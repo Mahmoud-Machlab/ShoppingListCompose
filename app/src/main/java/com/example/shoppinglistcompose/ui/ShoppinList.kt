@@ -23,6 +23,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,8 +51,9 @@ fun ListView() {
         .observeAsState(initial = emptyList())
 
     LazyColumn(Modifier.padding(top = 4.dp)) {
-        items(memoList) { shoppingMemo ->
-            ListItem(shoppingMemo)
+        // der key ist nötig um auf Änderungen von außen zu reagieren
+        items(memoList, key={memo -> memo.hashCode()} ){memo ->
+            ListItem(memo)
             Spacer(modifier = Modifier.height(4.dp))
         }
     }
@@ -139,13 +141,19 @@ fun ListItem(memo: ShoppingMemo) {
                     memo.quantity = quantity.toInt()
                     memo.product = product
                     shoppingMemoViewModel.insertOrUpdate(memo)
+                    quantity = ""
+                    product = ""
                     showDialog = false
                 }) {
                     Text(text = "OK")
                 }
             },
             dismissButton = {
-                Button(onClick = { showDialog = false }) {
+                Button(onClick = {
+                    quantity = ""
+                    product = ""
+                    showDialog = false
+                }) {
                     Text(text = "Cancel")
                 }
             }
@@ -158,7 +166,7 @@ fun ListItem(memo: ShoppingMemo) {
         Checkbox(
             checked = isChecked, onCheckedChange = {
                 isChecked = it
-                memo.isSelected = it
+                memo.isSelected = isChecked
                 shoppingMemoViewModel.insertOrUpdate(memo)
             },
             colors = CheckboxDefaults.colors(MaterialTheme.colors.primary),
