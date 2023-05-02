@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
@@ -16,10 +17,14 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.internal.isLiveLiteralsEnabled
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,24 +38,40 @@ import com.example.shoppinglistcompose.viewmodel.Values.quantity
 @Composable
 fun InputArea() {
     Row(modifier = Modifier.fillMaxWidth()) {
+        val quantityFocusRequester = remember {FocusRequester()}
+        val productFocusRequester = remember {FocusRequester() }
         OutlinedTextField(
             value = quantity,
             onValueChange = { quantity = it },
             shape = RoundedCornerShape(8.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                .copy(imeAction = ImeAction.Next),
+            keyboardActions= KeyboardActions(onNext = {productFocusRequester.requestFocus()}),
+
             modifier = Modifier
                 .padding(top = 8.dp)
                 .width(64.dp)
-                .weight(1.2f),
+                .weight(1.2f)
+                .focusRequester(quantityFocusRequester),
+            singleLine= true,
             label = { Text(text = "Anz.") }
         )
         OutlinedTextField(
             value = product,
             onValueChange = { product = it },
             shape = RoundedCornerShape(8.dp),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = {
+                shoppingMemoViewModel.insertOrUpdate(ShoppingMemo(quantity.toInt(), product))
+                quantity = ""
+                product = ""
+                quantityFocusRequester.requestFocus()
+            }),
             modifier = Modifier
                 .padding(top = 8.dp, start = 4.dp)
-                .weight(3f),
+                .weight(3f)
+                .focusRequester(productFocusRequester),
+            singleLine = true,
             label = { Text(text = "Artikel") }
         )
 
@@ -59,6 +80,7 @@ fun InputArea() {
                 shoppingMemoViewModel.insertOrUpdate(ShoppingMemo(quantity.toInt(), product))
                 quantity = ""
                 product = ""
+                quantityFocusRequester.requestFocus()
             },
             shape = RoundedCornerShape(8.dp),
             enabled = !(quantity.isBlank() || product.isBlank()),
