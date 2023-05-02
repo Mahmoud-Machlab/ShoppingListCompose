@@ -43,6 +43,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         shoppingMemoViewModel = ShoppingMemoViewModel.invoke(application)
 
+        Log.d("TAG", "onCreate: p : ${'p'.isDigit()}")
+        Log.d("TAG", "onCreate: leer : ${' '.isDigit()}")
+        Log.d("TAG", "onCreate: , : ${','.isDigit()}")
+        Log.d("TAG", "onCreate: 9 : ${'9'.isDigit()}")
+
         if((resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES)
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         else{
