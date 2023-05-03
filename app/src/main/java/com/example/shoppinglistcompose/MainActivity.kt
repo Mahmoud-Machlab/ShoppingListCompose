@@ -14,13 +14,20 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +36,11 @@ import com.example.shoppinglistcompose.ui.InputArea
 import com.example.shoppinglistcompose.ui.ListView
 import com.example.shoppinglistcompose.ui.theme.ShoppingListComposeTheme
 import com.example.shoppinglistcompose.viewmodel.ShoppingMemoViewModel
+import com.example.shoppinglistcompose.viewmodel.Values.currentMemo
+import com.example.shoppinglistcompose.viewmodel.Values.isDeleted
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 lateinit var shoppingMemoViewModel: ShoppingMemoViewModel
 
@@ -65,7 +77,29 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun FullScreen(){
+    val scaffoldState = rememberScaffoldState()
+    val coroutineScope = rememberCoroutineScope()
     Scaffold(
+        scaffoldState = scaffoldState,
+        snackbarHost = {
+                       SnackbarHost(hostState = it,
+                       snackbar = {
+                           Snackbar(
+                               action = {
+                                   TextButton(onClick = {
+                                       Log.d("TAG", "FullScreen: OnClick $currentMemo ")
+                                       shoppingMemoViewModel.insertOrUpdate(currentMemo)
+                                       isDeleted=false
+                                   }) {
+                                       Text(text = "UNDO")
+                                   }
+                               }
+                           ){
+                               Text(text = "Löschen rückgängig machen")
+                           }
+                       }
+                       )
+        },
         topBar = {
             TopAppBar(
                 title = {
@@ -112,7 +146,21 @@ fun FullScreen(){
         ) {
             InputArea()
             ListView()
+
         }
+    }
+    if(isDeleted){
+        Log.d("TAG", "FullScreen: $currentMemo : $isDeleted")
+
+        coroutineScope.launchWork(scaffoldState)
+    }
+
+}
+
+fun CoroutineScope.launchWork(scaffoldState: ScaffoldState){
+    launch(Dispatchers.Main){
+
+        scaffoldState.snackbarHostState.showSnackbar("Hallo", duration = SnackbarDuration.Short)
     }
 }
 

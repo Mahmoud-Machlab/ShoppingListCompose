@@ -29,11 +29,14 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Snackbar
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -54,6 +57,8 @@ import androidx.compose.ui.unit.sp
 import com.example.shoppinglistcompose.database.ShoppingMemo
 import com.example.shoppinglistcompose.shoppingMemoViewModel
 import com.example.shoppinglistcompose.viewmodel.Values
+import com.example.shoppinglistcompose.viewmodel.Values.currentMemo
+import com.example.shoppinglistcompose.viewmodel.Values.isDeleted
 import com.example.shoppinglistcompose.viewmodel.Values.product
 import com.example.shoppinglistcompose.viewmodel.Values.quantity
 
@@ -64,12 +69,13 @@ fun ListView() {
     val memoList by shoppingMemoViewModel.getAllShoppingMemos()!!
         .observeAsState(initial = emptyList())
     val state = rememberLazyListState()
+
     LazyColumn(
         Modifier.padding(top = 4.dp),
         state = state
     ) {
         // der key ist nötig um auf Änderungen von außen zu reagieren
-        items(memoList, key = { memo -> memo.hashCode() }) { memo ->
+        items(memoList, key = { memo -> memo.id }) { memo ->
             val dismissState = rememberDismissState(
                 confirmStateChange = {
                     if (it == DismissValue.DismissedToStart) {
@@ -103,9 +109,14 @@ fun ListView() {
                     }
                 },
                 dismissContent = {
+
                     if (dismissState.isDismissed(DismissDirection.EndToStart)) {
                         Log.d("TAG", "ListView: delete $memo")
+                        currentMemo = memo.copy()
+                        Log.d("TAG", "ListView: memo == currentMemo ${memo == currentMemo} -> ${memo === currentMemo}")
                         shoppingMemoViewModel.delete(memo)
+
+                        isDeleted = true
                     } else {
                         ListItem(memo)
                         Spacer(modifier = Modifier.height(4.dp))
@@ -113,9 +124,9 @@ fun ListView() {
                 }
             )
 
-
         }
     }
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)

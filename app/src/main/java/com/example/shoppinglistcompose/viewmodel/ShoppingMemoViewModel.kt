@@ -1,6 +1,7 @@
 package com.example.shoppinglistcompose.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.example.shoppinglistcompose.database.ShoppingMemo
@@ -25,6 +26,7 @@ object ShoppingMemoViewModel: ViewModel() {
     }
 
     fun insertOrUpdate(memo: ShoppingMemo){
+        Log.d("TAG", "insertOrUpdate: $memo")
         CoroutineScope(Dispatchers.IO).launch {
             repository?.insertOrUpdate(memo)
         }
